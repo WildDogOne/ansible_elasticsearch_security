@@ -147,7 +147,8 @@ def main():
                 }
                 # Remove all None values from the user_data dict
                 user_data = {k: v for k, v in user_data.items() if v is not None}
-
+                print(es.security.get_user(username=user_name))
+                
                 es.security.put_user(
                     **user_data,
                     refresh="true",
