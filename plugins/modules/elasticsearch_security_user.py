@@ -110,7 +110,8 @@ def main():
     user_full_name = module.params["user_full_name"]
     user_email = module.params["user_email"]
     user_password = module.params["user_password"]
-    user_roles = module.params["user_roles"]
+    #user_roles = module.params["user_roles"]
+    user_roles = module.params.get("user_roles", [])
     force = module.params["force"]
     tls_verify = module.params["tls_verify"]
 
