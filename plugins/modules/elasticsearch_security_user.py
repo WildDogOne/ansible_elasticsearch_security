@@ -17,7 +17,7 @@ options:
   state:
     description:
       - Specifies whether the user should be present or absent.
-    choices: ['present', 'absent', 'update']
+    choices: ['present', 'absent', 'update-password']
     required: true
 
   es_url:
@@ -87,7 +87,9 @@ seealso:
 
 def main():
     module_args = dict(
-        state=dict(type="str", choices=["present", "absent", "update"], required=True),
+        state=dict(
+            type="str", choices=["present", "absent", "update-password"], required=True
+        ),
         es_url=dict(type="str", required=True),
         es_user=dict(type="str", required=True),
         es_pass=dict(type="str", required=True, no_log=True),
@@ -110,15 +112,14 @@ def main():
     user_full_name = module.params["user_full_name"]
     user_email = module.params["user_email"]
     user_password = module.params["user_password"]
-    #user_roles = module.params["user_roles"]
     user_roles = module.params.get("user_roles", [])
     force = module.params["force"]
     tls_verify = module.params["tls_verify"]
 
     if tls_verify == False:
-      es = Elasticsearch([es_url], basic_auth=(es_user, es_pass),  verify_certs=False)
+        es = Elasticsearch([es_url], basic_auth=(es_user, es_pass), verify_certs=False)
     else:
-      es = Elasticsearch([es_url], basic_auth=(es_user, es_pass))
+        es = Elasticsearch([es_url], basic_auth=(es_user, es_pass))
 
     try:
         existing_user = es.security.get_user(username=user_name)
@@ -136,22 +137,11 @@ def main():
                 )
             else:
                 raise NotFoundError
-        if state == "update":
+        if state == "update-password":
             if user_name in existing_user:
-                user_data = {
-                    "username": user_name,
-                    "password": user_password,
-                    "roles": user_roles,
-                    "full_name": user_full_name,
-                    "email": user_email,
-                }
-                # Remove all None values from the user_data dict
-                user_data = {k: v for k, v in user_data.items() if v is not None}
-                print(es.security.get_user(username=user_name))
-                
-                es.security.put_user(
-                    **user_data,
-                    refresh="true",
+                es.security.change_password(
+                    username=user_name,
+                    password=user_password,
                 )
             else:
                 raise NotFoundError
