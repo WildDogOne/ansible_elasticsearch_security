@@ -137,12 +137,18 @@ def main():
                 raise NotFoundError
         if state == "update":
             if user_name in existing_user:
+                user_data = {
+                    "username": user_name,
+                    "password": user_password,
+                    "roles": user_roles,
+                    "full_name": user_full_name,
+                    "email": user_email,
+                }
+                # Remove all None values from the user_data dict
+                user_data = {k: v for k, v in user_data.items() if v is not None}
+
                 es.security.put_user(
-                    username=user_name,
-                    password=user_password,
-                    roles=user_roles,
-                    full_name=user_full_name,
-                    email=user_email,
+                    **user_data,
                     refresh="true",
                 )
             else:
