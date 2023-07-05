@@ -17,7 +17,7 @@ options:
   state:
     description:
       - Specifies whether the user should be present or absent.
-    choices: ['present', 'absent']
+    choices: ['present', 'absent', 'update']
     required: true
 
   es_url:
@@ -125,6 +125,18 @@ def main():
         if state == "present" and force:
             if user_name in existing_user:
                 es.security.delete_user(username=user_name)
+                es.security.put_user(
+                    username=user_name,
+                    password=user_password,
+                    roles=user_roles,
+                    full_name=user_full_name,
+                    email=user_email,
+                    refresh="true",
+                )
+            else:
+                raise NotFoundError
+        if state == "update":
+            if user_name in existing_user:
                 es.security.put_user(
                     username=user_name,
                     password=user_password,
