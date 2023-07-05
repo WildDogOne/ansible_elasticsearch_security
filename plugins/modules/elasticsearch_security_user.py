@@ -87,7 +87,7 @@ seealso:
 
 def main():
     module_args = dict(
-        state=dict(type="str", choices=["present", "absent"], required=True),
+        state=dict(type="str", choices=["present", "absent", "update"], required=True),
         es_url=dict(type="str", required=True),
         es_user=dict(type="str", required=True),
         es_pass=dict(type="str", required=True, no_log=True),
